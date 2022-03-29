@@ -6,7 +6,7 @@
 * You can comment on or request me to make changes
 * You may download this game for personal use
 * Please report bugs!
-* If you want to make changes, please ask me!
+* If you want to make changes or create a branch off this repository, please ask me!
 
 ### NOT Allowed
 * Selling this game
