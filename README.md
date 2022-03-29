@@ -1,4 +1,4 @@
-# Block_Bros_pygame
+# Py_Bots
 
 ## Use Policy
 
