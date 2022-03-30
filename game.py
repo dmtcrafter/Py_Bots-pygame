@@ -30,8 +30,11 @@ SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 
 # Create the screen object
-# The size is determined by the constants SCREEN_WIDTH and SCREEN_HEIGHT
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# fill screen with background image
+screen_img = pygame.image.load('./assets/imgs/star-wars-backgrounds-24.jpg')
+screen.blit(screen_img, (0, 0))
 
 
 class GameObjects(pygame.sprite.Sprite):
@@ -51,37 +54,48 @@ class GameObjects(pygame.sprite.Sprite):
         return game_objects
 
 
-class PlayerBullet(GameObjects):
+class Bullet(GameObjects):
     def __init__(self):
         super().__init__()
-        self.surf = pygame.image.load('./Block_Bros_assets/imgs/player_bullet.png')
+        self.surf = pygame.image.load('./assets/imgs/player_bullet.png')
         self.velocity = GameObjects.vector
 
 
-class EnemyBullet(GameObjects):
+class Enemy(GameObjects):
     def __init__(self):
         super().__init__()
-        self.surf = pygame.image.load('./Block_Bros_assets/imgs/enemy_bullet.png')
-        self.velocity = GameObjects.vector
+        self.surf = pygame.Surface
+        self.velocity = Vector2(0.2, 0)
+
+    def update(self):
+        if self.rect == Player.player_bullets[bullet]:
+            self.surf = pygame.image.load('./assets/explosion.png')
+
+    class Gopher(GameObjects):
+        def __init__(self):
+            super().__init__()
+            self.surf = pygame.Surface
+            self.velocity = Vector2(0.3, 0)
 
 
 class Player(GameObjects):
+    player_bullets = []
     def __init__(self):
         super().__init__()
-        self.surf = pygame.image.load('./Block_Bros_assets/imgs/player_bot_1.png').convert()
-        self.rect = self.surf.get_rect(center= (SCREEN_HEIGHT-100), (SCREEN_WIDTH-1100))
-        self.player_bullets = []
+        self.surf = pygame.image.load('./assets/imgs/player_bot_1.png').convert()
+        self.rect = self.surf.get_rect(center=(SCREEN_HEIGHT-100, SCREEN_WIDTH-1100))
 
     def update(self, pressed_keys):
         # if hit, subtract one health point
         hit = False
         health = 3
-        if (GameObjects.enemy_bullets[e_bullet].rect.top
-                or GameObjects.enemy_bullets[e_bullet].rect.left or GameObjects.enemy_bullets[e_bullet].rect.right
-                or GameObjects.enemy_bullets[e_bullet].rect.right)\
-                == (player_1.rect.top
+        par_1 = (GameObjects.enemy_bullets[bullet].rect.top
+                or GameObjects.enemy_bullets[bullet].rect.left or GameObjects.enemy_bullets[bullet].rect.right
+                or GameObjects.enemy_bullets[bullet].rect.right)
+        par_2 = (player_1.rect.top
                     or player_1.rect.left or player_1.rect.right
-                    or player_1.rect.bottom):
+                    or player_1.rect.bottom)
+        if par_1 == par_2:
             hit = True
 
         if hit:
@@ -96,8 +110,8 @@ class Player(GameObjects):
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(5, 0)
         if pressed_keys[K_SPACE]:
-            p_bullet = PlayerBullet()
-            player_1.player_bullets.append(p_bullet)
+            bullet = Bullet()
+            player_1.player_bullets.append(bullet)
 
         # Keep player on the screen
         if self.rect.left < 0:
@@ -138,7 +152,7 @@ while running:
         
         if player_1.rect >= (Enemy.ChomperBot or Enemy.ChompingFish() or Enemy.Gopher()):
             time.sleep(0.2)
-            e_bullet = EnemyBullet()
+            bullet = EnemyBullet()
 
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
