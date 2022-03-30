@@ -57,6 +57,7 @@ class PlayerBullet(GameObjects):
         self.surf = pygame.image.load('./Block_Bros_assets/imgs/player_bullet.png')
         self.velocity = GameObjects.vector
 
+
 class EnemyBullet(GameObjects):
     def __init__(self):
         super().__init__()
@@ -68,6 +69,7 @@ class Player(GameObjects):
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./Block_Bros_assets/imgs/player_bot_1.png').convert()
+        self.rect = self.surf.get_rect(center= (SCREEN_HEIGHT-100), (SCREEN_WIDTH-1100))
         self.player_bullets = []
 
     def update(self, pressed_keys):
