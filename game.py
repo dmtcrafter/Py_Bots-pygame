@@ -35,14 +35,15 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
 class GameObjects(pygame.sprite.Sprite):
+    vector = Vector2(0.5, 0)
+    enemy_bullets = []
+    enemies = []
+
     def __init__(self):
         super().__init__()
-        self.vector = Vector2(0.5, 0)
-        self.enemies = []
-        self.enemy_bullets = []
 
-    def _get_game_objects(self):
-        game_objects = [*self.enemies]
+    def _get_game_objects(self, enemies):
+        game_objects = [*enemies]
 
         if player_1:
             game_objects.append(player_1)
@@ -56,7 +57,11 @@ class PlayerBullet(GameObjects):
         self.surf = pygame.image.load('./Block_Bros_assets/imgs/player_bullet.png')
         self.velocity = GameObjects.vector
 
-
+class EnemyBullet(GameObjects):
+    def __init__(self):
+        super().__init__()
+        self.surf = pygame.image.load('./Block_Bros_assets/imgs/enemy_bullet.png')
+        self.velocity = GameObjects.vector
 
 
 class Player(GameObjects):
@@ -73,8 +78,8 @@ class Player(GameObjects):
                 or GameObjects.enemy_bullets[e_bullet].rect.left or GameObjects.enemy_bullets[e_bullet].rect.right
                 or GameObjects.enemy_bullets[e_bullet].rect.right)\
                 == (player_1.rect.top
-                or player_1.rect.left or player_1.rect.right
-                or player_1.rect.bottom):
+                    or player_1.rect.left or player_1.rect.right
+                    or player_1.rect.bottom):
             hit = True
 
         if hit:
@@ -89,8 +94,8 @@ class Player(GameObjects):
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(5, 0)
         if pressed_keys[K_SPACE]:
-            n_p_bullet = GameObjects.PlayerBullet('player_bullet', bullet_vector)
-            player_1.player_bullets.append(n_p_bullet)
+            p_bullet = PlayerBullet()
+            player_1.player_bullets.append(p_bullet)
 
         # Keep player on the screen
         if self.rect.left < 0:
@@ -123,11 +128,15 @@ while running:
             running = False
     while running:
 
-        enemy_type = [GameObjects.Enemy.ChomperBot(), GameObjects.Enemy.ChompingFish(), GameObjects.Enemy.Gopher()]
+        enemy_type = [Enemy.ChomperBot(), Enemy.ChompingFish(), Enemy.Gopher()]
         enemy_choice = random.choice(enemy_type)
         n_enemy = Enemy()
         # delay new enemy creation
         time.sleep(0.5)
+        
+        if player_1.rect >= (Enemy.ChomperBot or Enemy.ChompingFish() or Enemy.Gopher()):
+            time.sleep(0.2)
+            e_bullet = EnemyBullet()
 
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
