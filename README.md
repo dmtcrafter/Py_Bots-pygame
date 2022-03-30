@@ -1,5 +1,7 @@
 # Py_Bots
 
+#### Requires (minimum) Python 3.x and pygame 2.x.x
+
 ## Use Policy
 
 ### Allowed
