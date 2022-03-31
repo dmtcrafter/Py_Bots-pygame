@@ -25,31 +25,43 @@ from pygame.locals import (
 # init pygame
 pygame.init()
 
-# set game window width and height
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
+# set game window width and height (DEFAULT: SCREEN_WIDTH = 1200, SCREEN_HEIGHT = 800)
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 
 # Create the screen object
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # fill screen with background image
-screen_img = pygame.image.load('./assets/imgs/star-wars-backgrounds-24.jpg')
-screen.blit(screen_img, (0, 0))
+
+
+class Background():
+    def __init__(self):
+        super().__init__()
+        self.surf = pygame.image.load('./assets/imgs/star-wars-backgrounds-24.jpg')
+
+
+screen_img = Background()
+screen_img_surf = screen_img.surf
+screen.blit(screen_img_surf)
+
+# create sprite groups
+enemies = pygame.sprite.Group()
+enemy_bullets = pygame.sprite.Group()
+player_bullets = pygame.sprite.Group()
+game_objects = pygame.sprite.Group()
 
 
 class GameObjects(pygame.sprite.Sprite):
     vector = Vector2(0.5, 0)
-    enemy_bullets = []
-    enemies = []
 
     def __init__(self):
         super().__init__()
 
-    def _get_game_objects(self, enemies):
-        game_objects = [*enemies]
+    def _get_game_objects(self, enemies_1):
 
-        if player_1:
-            game_objects.append(player_1)
+        if player:
+            game_objects.add(player)
 
         return game_objects
 
@@ -58,6 +70,8 @@ class Bullet(GameObjects):
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./assets/imgs/player_bullet.png')
+        self.rect = self.surf.get_rect()
+        self.bounding_rect = self.surf.get_bounding_rect()
         self.velocity = GameObjects.vector
 
 
@@ -68,18 +82,51 @@ class Enemy(GameObjects):
         self.velocity = Vector2(0.2, 0)
 
     def update(self):
-        if self.rect == Player.player_bullets[bullet]:
+        if self.rect == Player.player_bullets.bullet:
             self.surf = pygame.image.load('./assets/explosion.png')
 
-    class Gopher(GameObjects):
+    class Crocodile(GameObjects):
         def __init__(self):
             super().__init__()
-            self.surf = pygame.Surface
+            self.surf = pygame.image.load('./assets/SawBot.png')
+            self.rect = self.surf.get_rect()
+            self.bounding_rect = self.surf.get_bounding_rect()
             self.velocity = Vector2(0.3, 0)
+
+        def update(self):
+            if self.rect == player_bullets.bullet.rect:
+                self.surf = pygame.image.load('./assets/explosion.png')
+
+    class SawBot(GameObjects):
+        def __init__(self):
+            super().__init__()
+            self.surf = pygame.image.load('./assets/imgs/saw_bot.png')
+            self.rect = self.surf.get_rect()
+            self.bounding_rect = self.surf.get_bounding_rect()
+            self.velocity = Vector2(0.3, 0)
+
+        def update(self):
+            if self.rect == player_bullets.bullet.rect:
+                self.surf = pygame.image.load('./assets/explosion.png')
+
+    class Turret(GameObjects):
+        def __init__(self):
+            super().__init__()
+            self.surf = pygame.image.load('./assets/imgs/turret_closed.png')
+            self.rect = self.surf.get_rect()
+            self.bounding_rect = self.surf.get_bounding_rect()
+
+        def update(self):
+            if self.rect == player_bullets.bullet.rect:
+                self.surf = pygame.image.load('./assets/explosion.png')
+            if player.rect >= (Enemy.Turret or Enemy.Crocodile() or Enemy.SawBot()):
+                time.sleep(0.2)
+                bullet = Bullet()
+                enemy_bullets.add(bullet)
+
 
 
 class Player(GameObjects):
-    player_bullets = []
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./assets/imgs/player_bot_1.png').convert()
@@ -89,13 +136,15 @@ class Player(GameObjects):
         # if hit, subtract one health point
         hit = False
         health = 3
-        par_1 = (GameObjects.enemy_bullets[bullet].rect.top
-                or GameObjects.enemy_bullets[bullet].rect.left or GameObjects.enemy_bullets[bullet].rect.right
-                or GameObjects.enemy_bullets[bullet].rect.right)
-        par_2 = (player_1.rect.top
-                    or player_1.rect.left or player_1.rect.right
-                    or player_1.rect.bottom)
+        par_1 = (enemy_bullets.bullet.rect)
+
+        par_2 = (Enemy.SawBot().rect or Enemy.Crocodile().rect or Enemy.Turret.rect)
+        par_3 = player.rect
+
         if par_1 == par_2:
+            hit = True
+
+        elif par_2 == par_3:
             hit = True
 
         if hit:
@@ -110,8 +159,8 @@ class Player(GameObjects):
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(5, 0)
         if pressed_keys[K_SPACE]:
-            bullet = Bullet()
-            player_1.player_bullets.append(bullet)
+            n_bullet = Bullet()
+            player.player_bullets.append(n_bullet)
 
         # Keep player on the screen
         if self.rect.left < 0:
@@ -122,9 +171,11 @@ class Player(GameObjects):
             self.rect.top = 0
 
 
-# create player_1
-player_1 = Player()
+# create player
+player = Player()
 
+# add player to game_objects group
+game_objects.add(player)
 
 # variable to keep main loop running
 running = True
@@ -142,27 +193,23 @@ while running:
         # Did the user click the 'Close' button? If so, stop the loop
         elif event.type == QUIT:
             running = False
-    while running:
 
-        enemy_type = [Enemy.ChomperBot(), Enemy.ChompingFish(), Enemy.Gopher()]
-        enemy_choice = random.choice(enemy_type)
-        n_enemy = Enemy()
-        # delay new enemy creation
-        time.sleep(0.5)
+    enemy_type = [Enemy.Turret(), Enemy.Crocodile(), Enemy.SawBot()]
+    enemy_choice = random.choice(enemy_type)
+    n_enemy = Enemy()
+    # delay new enemy creation
+    time.sleep(0.5)
         
-        if player_1.rect >= (Enemy.ChomperBot or Enemy.ChompingFish() or Enemy.Gopher()):
-            time.sleep(0.2)
-            bullet = EnemyBullet()
+    if player.rect >= (Enemy.Turret or Enemy.Crocodile() or Enemy.SawBot()):
+        time.sleep(0.2)
+        bullet = Bullet()
 
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
 
     # update player sprite based on user key presses
-    player_1.update(pressed_keys)
-
-    # Fill the screen with a color
-    screen.fill((0, 255, 255, 255))
+    player.update(pressed_keys)
 
     # draw surf onto the screen at the center
-    screen.blit(player_1.surf, player_1.rect)
+    screen.blit(player.surf, player.rect)
     pygame.display.flip()
