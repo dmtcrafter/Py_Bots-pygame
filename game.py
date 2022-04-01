@@ -125,7 +125,6 @@ class Enemy(GameObjects):
                 enemy_bullets.add(bullet)
 
 
-
 class Player(GameObjects):
     def __init__(self):
         super().__init__()
@@ -136,7 +135,7 @@ class Player(GameObjects):
         # if hit, subtract one health point
         hit = False
         health = 3
-        par_1 = (enemy_bullets.bullet.rect)
+        par_1 = bullet.rect
 
         par_2 = (Enemy.SawBot().rect or Enemy.Crocodile().rect or Enemy.Turret.rect)
         par_3 = player.rect
