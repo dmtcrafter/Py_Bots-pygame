@@ -133,20 +133,20 @@ class Player(GameObjects):
 
     def update(self, pressed_keys):
         # if hit, subtract one health point
-        hit = False
+        p_hit = False
         health = 3
+
         par_1 = bullet.rect
 
-        par_2 = (Enemy.SawBot().rect or Enemy.Crocodile().rect or Enemy.Turret.rect)
         par_3 = player.rect
 
         if par_1 == par_2:
-            hit = True
+            e_hit = True
 
         elif par_2 == par_3:
-            hit = True
+            e_hit = True
 
-        if hit:
+        if p_hit:
             health = health - 1
 
         if health <= 0:
@@ -159,7 +159,7 @@ class Player(GameObjects):
             self.rect.move_ip(5, 0)
         if pressed_keys[K_SPACE]:
             n_bullet = Bullet()
-            player.player_bullets.append(n_bullet)
+            player_bullets.add(n_bullet)
 
         # Keep player on the screen
         if self.rect.left < 0:
@@ -198,13 +198,18 @@ while running:
     n_enemy = Enemy()
     # delay new enemy creation
     time.sleep(0.5)
-        
-    if player.rect >= (Enemy.Turret or Enemy.Crocodile() or Enemy.SawBot()):
-        time.sleep(0.2)
-        bullet = Bullet()
 
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
+
+    if pressed_keys[K_SPACE]:
+        time.sleep(0.2)
+        bullet = Bullet()
+
+    # add new enemy bullets
+    time.sleep(0.2)
+    eBullet = Bullet()
+    enemy_bullets.add(eBullet)
 
     # update player sprite based on user key presses
     player.update(pressed_keys)
