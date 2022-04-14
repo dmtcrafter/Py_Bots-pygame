@@ -123,6 +123,7 @@ class Enemy(GameObjects):
         def __init__(self):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/turret_closed.png').convert()
+            self.surf.set_colorkey((255, 255, 0), RLEACCEL)
             self.rect = self.surf.get_rect()
             self.bounding_rect = self.surf.get_bounding_rect()
 
@@ -140,7 +141,7 @@ class Player(GameObjects):
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./assets/imgs/player_bot_1.png').convert()
-        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.surf.set_colorkey((255, 255, 0), RLEACCEL)
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-100))
 
     def update(self, pressed_keys):
@@ -209,13 +210,13 @@ while running:
     # fill screen with background image
     display.blit(screen.surf, screen.rect)
 
+    enemy_type = [Enemy.Turret(), Enemy.Crocodile(), Enemy.SawBot()]
+    enemy_choice = random.choice(enemy_type)
+
+    n_enemy = Enemy()
     # Draw all sprites
     for entity in game_objects:
         display.blit(entity.surf, entity.rect)
-
-    enemy_type = [Enemy.Turret(), Enemy.Crocodile(), Enemy.SawBot()]
-    enemy_choice = random.choice(enemy_type)
-    n_enemy = Enemy()
 
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
