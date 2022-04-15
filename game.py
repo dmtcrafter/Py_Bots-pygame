@@ -213,22 +213,18 @@ while running:
     enemy_choice = random.choice(enemy_type)
 
     n_enemy = Enemy()
-    # Draw all sprites
-    for entity in game_objects:
-        display.blit(entity.surf, entity.rect)
 
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
 
-    if pressed_keys[K_SPACE]:
-        time.sleep(0.2)
-        bullet = Bullet()
+    # update player sprite based on user key presses
+    player.update(pressed_keys)
 
     # add new enemy bullets
-
     type_e = pygame.image.load('./assets/imgs/enemy_bullet.png')
     eBullet = Bullet(type_e)
     bullets.add(eBullet)
 
-    # update player sprite based on user key presses
-    player.update(pressed_keys)
+    # Draw all sprites
+    for entity in game_objects:
+        display.blit(entity.surf, entity.rect)
