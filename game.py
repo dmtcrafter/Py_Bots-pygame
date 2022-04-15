@@ -88,7 +88,7 @@ class Enemy(GameObjects):
     class Crocodile(GameObjects):
         def __init__(self):
             super().__init__()
-            self.surf = pygame.image.load('./assets/SawBot.png')
+            self.surf = pygame.image.load('./assets/crocodile.png')
             self.rect = self.surf.get_rect()
             self.bounding_rect = self.surf.get_bounding_rect()
             self.velocity = Vector2(0.3, 0)
