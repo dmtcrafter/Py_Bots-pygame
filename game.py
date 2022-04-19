@@ -28,6 +28,7 @@ SCREEN_HEIGHT = 800
 
 # Create the screen object
 display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Py_Bots', './assets/imgs/icon.png')
 
 
 class Background(pygame.sprite.Sprite):
