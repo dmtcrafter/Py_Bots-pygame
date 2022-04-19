@@ -46,7 +46,8 @@ game_objects = pygame.sprite.Group()
 
 
 class GameObjects(pygame.sprite.Sprite):
-    vector = Vector2(0.5, 0)
+    p_velo = Vector2(1, 0)
+    e_velo = Vector2(-1, 0)
 
     def __init__(self):
         super().__init__()
@@ -61,15 +62,17 @@ class GameObjects(pygame.sprite.Sprite):
 
 
 class Bullet(GameObjects):
-    def __init__(self, bullet_type):
+    def __init__(self, b_type, velo_type):
         super().__init__()
-        self.surf = bullet_type
+        self.surf = b_type
         self.rect = self.surf.get_rect()
         self.bounding_rect = self.surf.get_bounding_rect()
-        self.velocity = GameObjects.vector
+        self.velocity = velo_type
 
 
 class Enemy(GameObjects):
+    type_e = pygame.image.load('./assets/imgs/enemy_bullet.png')
+    
     def __init__(self):
         super().__init__()
         self.surf = pygame.Surface
@@ -116,11 +119,10 @@ class Enemy(GameObjects):
                 self.kill()
 
     class Turret(GameObjects):
-        def __init__(self, pos):
+        def __init__(self):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/turret_closed.png').convert()
             self.rect = self.surf.get_rect()
-            self.rect.center(pos)
             self.bounding_rect = self.surf.get_bounding_rect()
             self.functioning = True
 
@@ -128,18 +130,17 @@ class Enemy(GameObjects):
             # Check if any enemies have collided with the player
             if pygame.sprite.spritecollideany(self, bullets):
                 # If so, then remove the player and stop the loop
-                player.kill()
                 self.surf = pygame.image.load('./assets/explosion.png').convert()
-
                 self.kill()
             while self.functioning:
                 time.sleep(.2)
-                eBullet = Bullet(type_e)
-                bullets.add(eBullet)
+                ebullet = Bullet(Enemy.type_e, GameObjects.e_velo)
+                bullets.add(ebullet)
 
 
 class Player(GameObjects):
     HEALTH = 3
+
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./assets/imgs/player_bot_1.png').convert()
@@ -147,10 +148,9 @@ class Player(GameObjects):
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-100))
 
     def update(self, pressed_keys):
-        # if hit, subtract one player.Health point
 
-
-        if player.Health <= 0:
+        # if hit, subtract one player.HEALTH point
+        if player.HEALTH <= 0:
             self.surf = pygame.image.load('/assets/imgs/explosion.png').convert()
 
             self.kill()
@@ -163,7 +163,7 @@ class Player(GameObjects):
 
         if pressed_keys[K_f]:
             type_p = pygame.image.load('./assets/imgs/player_bullet.png').convert()
-            bullet = Bullet(type_p)
+            bullet = Bullet(type_p, GameObjects.p_velo)
             bullets.add(bullet)
 
         # Keep player on the screen
@@ -181,11 +181,16 @@ player = Player()
 # add player to game_objects group
 game_objects.add(player)
 
-# add enemies for the start
-enemy = Enemy.Turret((SCREEN_WIDTH-100, SCREEN_HEIGHT-100))
-
 p_hit = False
 
+# create enemies for the game start and add them to 
+turret_1 = Enemy.Turret()
+saw_bot_1 = Enemy.SawBot()
+crocodile = Enemy.Crocodile()
+turret_2 = Enemy.Turret()
+saw_bot_2 = Enemy.SawBot()
+
+enemies.add(turret_1, saw_bot_1, turret_2, saw_bot_2, crocodile)
 
 # variable to keep main loop running
 running = True
@@ -213,22 +218,17 @@ while running:
     # update player sprite based on user key presses
     player.update(pressed_keys)
 
-    # add new enemy bullets
-    type_e = pygame.image.load('./assets/imgs/enemy_bullet.png')
-    eBullet = Bullet(type_e)
-    bullets.add(eBullet)
-
     # Draw all sprites
     for entity in game_objects:
         display.blit(entity.surf, entity.rect)
 
     # Check if any enemies have collided with the player
-    if pygame.sprite.spritecollideany(player, *enemies):
+    if pygame.sprite.spritecollideany(player, enemies):
         # If so, then the player loses a life
         p_hit = True
 
     if p_hit:
-        player.Health = player.Health - 1
+        player.HEALTH = player.HEALTH - 1
         p_hit = False
 
     pygame.display.flip()
