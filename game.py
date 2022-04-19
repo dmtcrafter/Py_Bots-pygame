@@ -224,4 +224,4 @@ while running:
         player.HEALTH = player.HEALTH - 1
         p_hit = False
 
-    pygame.display.flip()
+    pygame.display.update()
