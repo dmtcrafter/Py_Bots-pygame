@@ -11,7 +11,7 @@ import time
 # import pygame.locals for easier access to key coordinates
 from pygame.locals import (
     RLEACCEL,
-    K_f,
+    K_SPACE,
     K_LEFT,
     K_RIGHT,
     K_ESCAPE,
@@ -65,6 +65,7 @@ class Bullet(GameObjects):
     def __init__(self, b_type, velo_type):
         super().__init__()
         self.surf = b_type
+        self.surf.set_colorkey((0, 0, 5), RLEACCEL)
         self.rect = self.surf.get_rect()
         self.bounding_rect = self.surf.get_bounding_rect()
         self.velocity = velo_type
@@ -75,21 +76,13 @@ class Enemy(GameObjects):
     
     def __init__(self):
         super().__init__()
-        self.surf = pygame.Surface
-
-    def update(self):
-        # Check if any enemies have collided with the player
-        if pygame.sprite.spritecollideany(self, bullets):
-            # If so, then show an explosion, remove the enemy, and kill it
-            self.surf = pygame.image.load('./assets/explosion.png').convert()
-            self.kill()
 
     class Crocodile(GameObjects):
-        def __init__(self):
+        def __init__(self, x_pos, y_pos):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/crocodile.png')
-            self.rect = self.surf.get_rect()
-            self.bounding_rect = self.surf.get_bounding_rect()
+            self.surf.set_colorkey((0, 0, 5), RLEACCEL)
+            self.rect = self.surf.get_rect(center=(x_pos, y_pos))
             self.velocity = Vector2(-0.3, 0)
 
         def update(self):
@@ -97,16 +90,15 @@ class Enemy(GameObjects):
             if pygame.sprite.spritecollideany(self, bullets):
                 # If so, then remove the player and stop the loop
                 player.kill()
-                self.surf = pygame.image.load('./assets/explosion.png').convert()
-
+                self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
                 self.kill()
 
     class SawBot(GameObjects):
-        def __init__(self):
+        def __init__(self, x_pos, y_pos):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/saw_bot.png').convert()
-            self.rect = self.surf.get_rect()
-            self.bounding_rect = self.surf.get_bounding_rect()
+            self.surf.set_colorkey((0, 0, 5), RLEACCEL)
+            self.rect = self.surf.get_rect(center=(x_pos, y_pos))
             self.velocity = Vector2(-0.3, 0)
 
         def update(self):
@@ -114,24 +106,26 @@ class Enemy(GameObjects):
             if pygame.sprite.spritecollideany(self, bullets):
                 # If so, then remove the player and stop the loop
                 player.kill()
-                self.surf = pygame.image.load('./assets/explosion.png').convert()
+                self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
 
                 self.kill()
 
     class Turret(GameObjects):
-        def __init__(self):
+        def __init__(self, x_pos, y_pos):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/turret_closed.png').convert()
-            self.rect = self.surf.get_rect()
-            self.bounding_rect = self.surf.get_bounding_rect()
+            self.surf.set_colorkey((0, 0, 5), RLEACCEL)
+            self.rect = self.surf.get_rect(center=(x_pos, y_pos))
             self.functioning = True
 
         def update(self):
             # Check if any enemies have collided with the player
             if pygame.sprite.spritecollideany(self, bullets):
                 # If so, then remove the player and stop the loop
-                self.surf = pygame.image.load('./assets/explosion.png').convert()
+                self.functioning = False
+                self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
                 self.kill()
+
             while self.functioning:
                 time.sleep(.2)
                 ebullet = Bullet(Enemy.type_e, GameObjects.e_velo)
@@ -151,8 +145,7 @@ class Player(GameObjects):
 
         # if hit, subtract one player.HEALTH point
         if player.HEALTH <= 0:
-            self.surf = pygame.image.load('/assets/imgs/explosion.png').convert()
-
+            self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
             self.kill()
 
         if pressed_keys[K_LEFT]:
@@ -161,7 +154,7 @@ class Player(GameObjects):
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(2, 0)
 
-        if pressed_keys[K_f]:
+        if pressed_keys[K_SPACE]:
             type_p = pygame.image.load('./assets/imgs/player_bullet.png').convert()
             bullet = Bullet(type_p, GameObjects.p_velo)
             bullets.add(bullet)
@@ -184,11 +177,11 @@ game_objects.add(player)
 p_hit = False
 
 # create enemies for the game start and add them to 
-turret_1 = Enemy.Turret()
-saw_bot_1 = Enemy.SawBot()
-crocodile = Enemy.Crocodile()
-turret_2 = Enemy.Turret()
-saw_bot_2 = Enemy.SawBot()
+turret_1 = Enemy.Turret(SCREEN_WIDTH-100, SCREEN_HEIGHT-100)
+saw_bot_1 = Enemy.SawBot(SCREEN_WIDTH-400, SCREEN_HEIGHT-100)
+crocodile = Enemy.Crocodile(SCREEN_WIDTH-480, SCREEN_HEIGHT-100)
+turret_2 = Enemy.Turret(SCREEN_WIDTH-20, SCREEN_HEIGHT-150)
+saw_bot_2 = Enemy.SawBot(SCREEN_WIDTH-450, SCREEN_HEIGHT-100)
 
 enemies.add(turret_1, saw_bot_1, turret_2, saw_bot_2, crocodile)
 
