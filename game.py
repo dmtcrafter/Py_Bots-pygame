@@ -41,7 +41,7 @@ screen = Background()
 # create sprite groups
 enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
-game_objects = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group()
 
 
 class GameObjects(pygame.sprite.Sprite):
@@ -51,13 +51,13 @@ class GameObjects(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-    def _get_game_objects(self):
-        game_objects.add(*enemies, *bullets)
+    def _get_all_sprites(self):
+        all_sprites.add(*enemies, *bullets)
 
         if player:
-            game_objects.add(player)
+            all_sprites.add(player)
 
-        return game_objects
+        return all_sprites
 
 
 class Bullet(GameObjects):
@@ -132,30 +132,20 @@ class Enemy(GameObjects):
 
 
 class Player(GameObjects):
-    HEALTH = 3
 
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./assets/imgs/player_bot_1.png').convert()
-        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.surf.set_colorkey((100, 0, 86.2), RLEACCEL)
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-120))
-        self.hit = False
 
     def update(self, pressed_keys):
-
-        # if hit, subtract one player.HEALTH point
-        if self.HEALTH <= 0:
-            self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
-            self.kill()
 
         # Check if any enemies have collided with the player
         if pygame.sprite.spritecollideany(player, enemies):
             # If so, then the player loses a life
-            self.hit = True
-
-        if self.hit:
-            self.HEALTH = player.HEALTH - 1
-            self.hit = False
+            self.kill()
+            exit()
 
         if pressed_keys[K_LEFT]:
             self.rect.move_ip(-2, 0)
@@ -181,8 +171,11 @@ class Player(GameObjects):
 # create player
 player = Player()
 
-# add player to game_objects group
-game_objects.add(player)
+# add player to all_sprites group
+all_sprites.add(player)
+
+# add enemies and bullets
+all_sprites.add(enemies, bullets)
 
 # create enemies for the game start and add them to 
 turret_1 = Enemy.Turret(SCREEN_WIDTH-200, SCREEN_HEIGHT-100)
@@ -210,17 +203,17 @@ while running:
         elif event.type == QUIT:
             running = False
 
-    # fill screen with background image
-    display.blit(screen.surf, screen.rect)
-
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
 
     # update player sprite based on user key presses
     player.update(pressed_keys)
 
-    # Draw all sprites
-    for entity in game_objects:
-        display.blit(entity.surf, entity.rect)
+    # fill screen with background image
+    display.blit(screen.surf, screen.rect)
 
-    pygame.display.flip()
+    # Draw all sprites
+    for entity in all_sprites:
+        display.blit(entity.surf, entity.rect.center)
+
+    pygame.display.update()
