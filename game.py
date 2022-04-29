@@ -24,7 +24,7 @@ pygame.init()
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 
-# Create the screen object
+# Create the display
 display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Py_Bots', './assets/imgs/icon.png')
 
@@ -36,7 +36,7 @@ class Background(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect()
 
 
-screen = Background()
+screen_img = Background()
 
 # create sprite groups
 enemies = pygame.sprite.Group()
@@ -54,9 +54,6 @@ class GameObjects(pygame.sprite.Sprite):
     def _get_all_sprites(self):
         all_sprites.add(*enemies, *bullets)
 
-        if player:
-            all_sprites.add(player)
-
         return all_sprites
 
 
@@ -64,7 +61,6 @@ class Bullet(GameObjects):
     def __init__(self, b_type, velo_type):
         super().__init__()
         self.surf = b_type
-        self.surf.set_colorkey((100, 0, 86.2), RLEACCEL)
         self.rect = self.surf.get_rect()
         self.bounding_rect = self.surf.get_bounding_rect()
         self.velocity = velo_type
@@ -81,7 +77,6 @@ class Enemy(GameObjects):
         def __init__(self, x_pos, y_pos):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/crocodile.png')
-            self.surf.set_colorkey((100, 0, 86.2), RLEACCEL)
             self.rect = self.surf.get_rect(center=(x_pos, y_pos))
             self.velocity = Vector2(-0.3, 0)
 
@@ -89,7 +84,7 @@ class Enemy(GameObjects):
             # Check if any bullets have collided with the enemy
             if pygame.sprite.spritecollideany(self, bullets):
                 # If so, then remove the player and stop the loop
-                player.kill()
+                self.kill()
                 self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
                 self.kill()
 
@@ -97,15 +92,12 @@ class Enemy(GameObjects):
         def __init__(self, x_pos, y_pos):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/saw_bot.png').convert()
-            self.surf.set_colorkey((100, 0, 86.2), RLEACCEL)
             self.rect = self.surf.get_rect(center=(x_pos, y_pos))
             self.velocity = Vector2(-0.3, 0)
 
         def update(self):
             # Check if any bullets have collided with the enemy
             if pygame.sprite.spritecollideany(self, bullets):
-                # If so, then remove the player and stop the loop
-                self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
 
                 self.kill()
 
@@ -113,19 +105,18 @@ class Enemy(GameObjects):
         def __init__(self, x_pos, y_pos):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/turret_open.png').convert()
-            self.surf.set_colorkey((100, 0, 86.2), RLEACCEL)
             self.rect = self.surf.get_rect(center=(x_pos, y_pos))
-            self.functioning = 1
+            self.functioning = True
 
         def update(self):
             # Check if any bullets have collided with the enemy
             if pygame.sprite.spritecollideany(self, bullets):
                 # If so, then remove the player and stop the loop
-                self.functioning = 0
-                self.surf = pygame.image.load('./assets/imgs/explosion.png').convert()
+                self.functioning = False
+
                 self.kill()
 
-            while self.functioning > 0:
+            while self.functioning:
 
                 e_bullet = Bullet(Enemy.type_e, GameObjects.e_velo)
                 bullets.add(e_bullet)
@@ -136,7 +127,6 @@ class Player(GameObjects):
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./assets/imgs/player_bot_1.png').convert()
-        self.surf.set_colorkey((100, 0, 86.2), RLEACCEL)
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-120))
 
     def update(self, pressed_keys):
@@ -159,7 +149,7 @@ class Player(GameObjects):
             bullet = Bullet(type_p, GameObjects.p_velo)
             bullets.add(bullet)
 
-        # Keep player on the screen
+        # Keep player on the screen_img
         if self.rect.left < 0:
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
@@ -168,14 +158,7 @@ class Player(GameObjects):
             self.rect.top = 0
 
 
-# create player
 player = Player()
-
-# add player to all_sprites group
-all_sprites.add(player)
-
-# add enemies and bullets
-all_sprites.add(enemies, bullets)
 
 # create enemies for the game start and add them to 
 turret_1 = Enemy.Turret(SCREEN_WIDTH-200, SCREEN_HEIGHT-100)
@@ -185,6 +168,8 @@ turret_2 = Enemy.Turret(SCREEN_WIDTH-150, SCREEN_HEIGHT-150)
 saw_bot_2 = Enemy.SawBot(SCREEN_WIDTH-440, SCREEN_HEIGHT-100)
 
 enemies.add(turret_1, saw_bot_1, turret_2, saw_bot_2, crocodile)
+
+all_sprites.add(screen_img)
 
 # variable to keep main loop running
 running = True
@@ -206,14 +191,17 @@ while running:
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
 
+    # add enemies and bullets
+    all_sprites.add(enemies)
+    
+    if player:
+        all_sprites.add(player)
+
     # update player sprite based on user key presses
     player.update(pressed_keys)
 
-    # fill screen with background image
-    display.blit(screen.surf, screen.rect)
-
     # Draw all sprites
     for entity in all_sprites:
-        display.blit(entity.surf, entity.rect.center)
+        display.blit(entity.surf, entity.rect)
 
-    pygame.display.update()
+    pygame.display.flip()
