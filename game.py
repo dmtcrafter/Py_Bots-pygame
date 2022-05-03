@@ -9,6 +9,8 @@ from pygame.math import Vector2
 # import pygame.locals for easier access to key coordinates
 from pygame.locals import (
     RLEACCEL,
+    K_UP,
+    K_DOWN,
     K_SPACE,
     K_LEFT,
     K_RIGHT,
@@ -68,7 +70,6 @@ class Bullet(GameObjects):
 
 class Enemy(GameObjects):
     type_e = pygame.image.load('./assets/imgs/enemy_bullet.png')
-    type_e.set_colorkey((100, 0, 86.2), RLEACCEL)
     
     def __init__(self):
         super().__init__()
@@ -78,9 +79,11 @@ class Enemy(GameObjects):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/crocodile.png')
             self.rect = self.surf.get_rect(center=(x_pos, y_pos))
-            self.velocity = Vector2(-0.3, 0)
+            self.velocity = [-1, 0]
 
         def update(self):
+            self.rect = self.rect.update(self.velocity)
+
             # Check if any bullets have collided with the enemy
             if pygame.sprite.spritecollideany(self, bullets):
                 # If so, then remove the player and stop the loop
@@ -93,9 +96,11 @@ class Enemy(GameObjects):
             super().__init__()
             self.surf = pygame.image.load('./assets/imgs/saw_bot.png').convert()
             self.rect = self.surf.get_rect(center=(x_pos, y_pos))
-            self.velocity = Vector2(-0.3, 0)
+            self.velocity = [-3, 0]
 
         def update(self):
+            self.rect = self.rect.update(self.velocity)
+
             # Check if any bullets have collided with the enemy
             if pygame.sprite.spritecollideany(self, bullets):
 
@@ -117,7 +122,6 @@ class Enemy(GameObjects):
                 self.kill()
 
             while self.functioning:
-
                 e_bullet = Bullet(Enemy.type_e, GameObjects.e_velo)
                 bullets.add(e_bullet)
 
@@ -127,21 +131,27 @@ class Player(GameObjects):
     def __init__(self):
         super().__init__()
         self.surf = pygame.image.load('./assets/imgs/player_bot_1.png').convert()
-        self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-120))
+        self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-60))
 
     def update(self, pressed_keys):
 
         # Check if any enemies have collided with the player
         if pygame.sprite.spritecollideany(player, enemies):
-            # If so, then the player loses a life
+            # If so, then the player dies and the game ends
             self.kill()
             exit()
 
         if pressed_keys[K_LEFT]:
             self.rect.move_ip(-2, 0)
 
+        if pressed_keys[K_UP]:
+            self.rect.move_ip(0, -2)
+
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(2, 0)
+
+        if pressed_keys[K_DOWN]:
+            self.rect.move_ip(0, 2)
 
         if pressed_keys[K_SPACE]:
             type_p = pygame.image.load('./assets/imgs/player_bullet.png').convert()
@@ -156,6 +166,8 @@ class Player(GameObjects):
             self.rect.right = SCREEN_WIDTH
         if self.rect.top < 0:
             self.rect.top = 0
+        if self.rect.bottom <= (SCREEN_HEIGHT-100):
+            self.rect.bottom = (SCREEN_HEIGHT-100)
 
 
 player = Player()
