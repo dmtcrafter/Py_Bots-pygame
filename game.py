@@ -3,6 +3,7 @@
 # import the pygame module
 import pygame
 
+import time
 from pygame.image import load
 # from pygame.math import Vector
 from pygame.math import Vector2
@@ -51,14 +52,13 @@ enemies.add(enemy_bullets)
 
 
 class GameObjects(pygame.sprite.Sprite):
-    BULLET_SPEED = 3
     p_velo = Vector2(1, 0)
     e_velo = Vector2(-1, 0)
 
     def __init__(self):
         super().__init__()
 
-    def _get_all_sprites(self):
+    def get_sprites(self):
         all_sprites.add(*enemies, *player_bullets, *enemy_bullets)
 
         return all_sprites
@@ -66,12 +66,12 @@ class GameObjects(pygame.sprite.Sprite):
 
 class Bullet(GameObjects):
 
-    def __init__(self, bullet_type, velo_type, position):
+    def __init__(self, bullet_type, position, velo):
         super().__init__()
         # copy vector
         self.surf = bullet_type
         self.rect = self.surf.get_rect()
-        self.direction = Vector2(velo_type)
+        self.direction = velo
         self.position = position
         self.bounding_rect = self.surf.get_bounding_rect()
 
@@ -120,13 +120,12 @@ class Enemy(GameObjects):
             self.surf = load('./assets/imgs/turret_open.png').convert()
             self.rect = self.surf.get_rect(center=(x_pos, y_pos))
             self.functioning = True
-            self.direction = Vector2()
-            self.position = self.rect.left
+            self.position = self.rect.center
 
         def shoot(self):
             type_e = load('./assets/imgs/enemy_bullet.png').convert()
-            enemy_bullet_velocity = self.direction * self.BULLET_SPEED
-            enemy_bullet = Bullet(type_e, enemy_bullet_velocity, self.position)
+            enemy_bullet_velocity = Vector2(-1, 0)
+            enemy_bullet = Bullet(type_e, enemy_bullet_velocity, )
             enemy_bullets.add(enemy_bullet)
 
         def update(self):
@@ -144,8 +143,12 @@ class Player(GameObjects):
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-100))
 
     def shoot(self):
+        if pressed_keys[K_RIGHT]:
+            p_velo_1 = Vector2(2, 0)
+        else:
+            p_velo_1 = Vector2()
         type_p = load('./assets/imgs/player_bullet.png').convert()
-        player_bullet = Bullet(type_p, GameObjects.p_velo, player.rect.left)
+        player_bullet = Bullet(type_p, p_velo_1)
         player_bullets.add(player_bullet)
 
     def update(self, pressed_keys):
@@ -223,6 +226,10 @@ while running:
         if enemy:
             all_sprites.add(enemy)
 
+    while turret_1:
+        time.sleep(1)
+        turret_1.shoot()
+
     for player_bullet in player_bullets:
         if player_bullet:
             all_sprites.add(player_bullet)
@@ -234,4 +241,4 @@ while running:
     for entity in all_sprites:
         display.blit(entity.surf, entity.rect)
 
-    pygame.display.flip()
+    pygame.display.update()
