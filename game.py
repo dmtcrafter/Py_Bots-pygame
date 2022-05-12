@@ -3,7 +3,7 @@
 # import the pygame module
 import pygame
 
-import time
+
 from pygame.image import load
 # from pygame.math import Vector
 from pygame.math import Vector2
@@ -21,6 +21,9 @@ from pygame.locals import (
 
 # init pygame
 pygame.init()
+
+# variable to keep main loop running
+running = True
 
 # set game window width and height (DEFAULT: SCREEN_WIDTH = 1200, SCREEN_HEIGHT = 800)
 SCREEN_WIDTH = 1200
@@ -125,7 +128,7 @@ class Enemy(GameObjects):
         def shoot(self):
             type_e = load('./assets/imgs/enemy_bullet.png').convert()
             enemy_bullet_velocity = Vector2(-1, 0)
-            enemy_bullet = Bullet(type_e, enemy_bullet_velocity, )
+            enemy_bullet = Bullet(type_e, self.position, enemy_bullet_velocity)
             enemy_bullets.add(enemy_bullet)
 
         def update(self):
@@ -148,7 +151,7 @@ class Player(GameObjects):
         else:
             p_velo_1 = Vector2()
         type_p = load('./assets/imgs/player_bullet.png').convert()
-        player_bullet = Bullet(type_p, p_velo_1)
+        player_bullet = Bullet(type_p, self.rect.left, p_velo_1)
         player_bullets.add(player_bullet)
 
     def update(self, pressed_keys):
@@ -159,7 +162,7 @@ class Player(GameObjects):
             self.kill()
             exit()
         # Check if any enemy bullets have collided with the player
-        if pygame.sprite.spritecollideany(player, enemy_bullets):
+        elif pygame.sprite.spritecollideany(player, enemy_bullets):
             # If so, then the player dies and the game ends
             self.kill()
             exit()
@@ -167,17 +170,17 @@ class Player(GameObjects):
         if pressed_keys[K_LEFT]:
             self.rect.move_ip(-2, 0)
 
-        if pressed_keys[K_RIGHT]:
+        elif pressed_keys[K_RIGHT]:
             self.rect.move_ip(2, 0)
 
         # Keep player on the screen_img
         if self.rect.left < 0:
             self.rect.left = 0
-        if self.rect.right > SCREEN_WIDTH:
+        elif self.rect.right > SCREEN_WIDTH:
             self.rect.right = SCREEN_WIDTH
-        if self.rect.top < 0:
+        elif self.rect.top < 0:
             self.rect.top = 0
-        if self.rect.bottom >= SCREEN_HEIGHT:
+        elif self.rect.bottom >= SCREEN_HEIGHT:
             self.rect.bottom = SCREEN_HEIGHT
 
 
@@ -185,17 +188,15 @@ player = Player()
 
 # create enemies for the game start and add them to 
 turret_1 = Enemy.Turret(SCREEN_WIDTH-200, SCREEN_HEIGHT-100)
-saw_bot_1 = Enemy.SawBot(SCREEN_WIDTH-460, SCREEN_HEIGHT-100)
-crocodile = Enemy.Crocodile(SCREEN_WIDTH-500, SCREEN_HEIGHT-100)
 turret_2 = Enemy.Turret(SCREEN_WIDTH-150, SCREEN_HEIGHT-150)
+saw_bot_1 = Enemy.SawBot(SCREEN_WIDTH-460, SCREEN_HEIGHT-100)
 saw_bot_2 = Enemy.SawBot(SCREEN_WIDTH-440, SCREEN_HEIGHT-100)
+crocodile = Enemy.Crocodile(SCREEN_WIDTH-500, SCREEN_HEIGHT-100)
 
 enemies.add(turret_1, saw_bot_1, turret_2, saw_bot_2, crocodile)
 
 all_sprites.add(screen_img)
 
-# variable to keep main loop running
-running = True
 
 # MAIN LOOP
 while running:
@@ -213,6 +214,13 @@ while running:
         elif player and event.type == pygame.KEYDOWN and event.key == K_SPACE:
             player.shoot()
 
+    tick_int = '1'
+    try:
+        index = tick_int.rindex(tick_int)
+
+    except:
+        print('rindex() error')
+
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
 
@@ -226,16 +234,18 @@ while running:
         if enemy:
             all_sprites.add(enemy)
 
-    while turret_1:
-        time.sleep(1)
-        turret_1.shoot()
-
     for player_bullet in player_bullets:
         if player_bullet:
             all_sprites.add(player_bullet)
 
     # update player sprite based on user key presses
     player.update(pressed_keys)
+
+    turret_1.update()
+    turret_2.update()
+    saw_bot_1.update()
+    saw_bot_2.update()
+    crocodile.update()
 
     # Draw all sprites
     for entity in all_sprites:
