@@ -33,15 +33,7 @@ SCREEN_HEIGHT = 800
 display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Py_Bots', './assets/imgs/icon.png')
 
-
-class Background(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.surf = load('./assets/imgs/background_1.png').convert()
-        self.rect = self.surf.get_rect()
-
-
-screen_img = Background()
+screen_img = load('./assets/imgs/background_1.png').convert()
 
 # create sprite groups
 enemies = pygame.sprite.Group()
@@ -214,17 +206,10 @@ while running:
         elif player and event.type == pygame.KEYDOWN and event.key == K_SPACE:
             player.shoot()
 
-    tick_int = '1'
-    try:
-        index = tick_int.rindex(tick_int)
-
-    except:
-        print('rindex() error')
-
     # get currently pressed keys
     pressed_keys = pygame.key.get_pressed()
 
-    # add enemies and bullets
+    # add group 'enemies' and sub-group 'bullets'
     all_sprites.add(enemies)
 
     if player:
