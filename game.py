@@ -3,7 +3,6 @@
 # import the pygame module
 import pygame
 
-
 from pygame.image import load
 # from pygame.math import Vector
 from pygame.math import Vector2
@@ -19,13 +18,10 @@ from pygame.locals import (
     QUIT,
 )
 
-# init pygame
+
 from pygame.sprite import AbstractGroup
 
 pygame.init()
-
-# variable to keep main loop running
-running = True
 
 # set game window width and height (DEFAULT: SCREEN_WIDTH = 1200, SCREEN_HEIGHT = 800)
 SCREEN_WIDTH = 1200
@@ -33,13 +29,19 @@ SCREEN_HEIGHT = 800
 
 # Create the display
 display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Py_Bots', './assets/imgs/icon.png')
+
+# set window title
+pygame.display.set_caption('Py_Bots')
+
+# set window icon
+icon = pygame.image.load('./assets/images/icon.png')
+pygame.display.set_icon(icon)
 
 
 class Image(pygame.sprite.Sprite):
     def __init__(self, *groups: AbstractGroup):
         super().__init__(*groups)
-        self.surf = load('./assets/imgs/background_1.png').convert()
+        self.surf = load('./assets/images/background_1.png').convert()
         self.rect = self.surf.get_rect()
 
 
@@ -82,15 +84,15 @@ class Bullet(GameObjects):
 
 
 class Enemy(GameObjects):
-    type_e = load('./assets/imgs/enemy_bullet.png')
-    
+    type_e = load('./assets/images/enemy_bullet.png')
+
     def __init__(self):
         super().__init__()
 
     class Crocodile(GameObjects):
         def __init__(self, x, y):
             super().__init__()
-            self.surf = load('./assets/imgs/crocodile.png')
+            self.surf = load('./assets/images/crocodile.png')
             self.rect = self.surf.get_rect(center=(x, y))
             self.velocity = (-1, 0, 0, 0)
             self.position = self.rect.center
@@ -101,7 +103,7 @@ class Enemy(GameObjects):
     class SawBot(GameObjects):
         def __init__(self, x, y):
             super().__init__()
-            self.surf = load('./assets/imgs/saw_bot.png').convert()
+            self.surf = load('./assets/images/saw_bot.png').convert()
             self.rect = self.surf.get_rect(center=(x, y))
             self.velocity = (-3, 0, 0, 0)
             self.position = self.rect.center
@@ -114,13 +116,13 @@ class Enemy(GameObjects):
     class Turret(GameObjects):
         def __init__(self, x, y):
             super().__init__()
-            self.surf = load('./assets/imgs/turret_open.png').convert()
+            self.surf = load('./assets/images/turret_open.png').convert()
             self.rect = self.surf.get_rect(center=(x, y))
             self.functioning = True
             self.position = self.rect.center
 
         def shoot(self):
-            type_e = load('./assets/imgs/enemy_bullet.png').convert()
+            type_e = load('./assets/images/enemy_bullet.png').convert()
             enemy_bullet_velocity = Vector2(-1, 0)
             enemy_bullet = Bullet(type_e, self.position, enemy_bullet_velocity)
             enemy_bullets.add(enemy_bullet)
@@ -130,8 +132,8 @@ class Player(GameObjects):
 
     def __init__(self):
         super().__init__()
-        self.surf = load('./assets/imgs/player_bot_1.png').convert()
-        self.rect = self.surf.get_rect(center=(SCREEN_WIDTH-1100, SCREEN_HEIGHT-100))
+        self.surf = load('./assets/images/player_bot_1.png').convert()
+        self.rect = self.surf.get_rect(center=(SCREEN_WIDTH - 1100, SCREEN_HEIGHT - 100))
 
     def shoot(self):
         pressed_keys = pygame.key.get_pressed()
@@ -139,7 +141,7 @@ class Player(GameObjects):
             p_velo_1 = Vector2(2, 0) + Vector2(1, 0)
         else:
             p_velo_1 = Vector2(1, 0)
-        type_p = load('./assets/imgs/player_bullet.png').convert()
+        type_p = load('./assets/images/player_bullet.png').convert()
         player_bullet = Bullet(type_p, self.rect.left, p_velo_1)
         player_bullets.add(player_bullet)
 
@@ -178,17 +180,19 @@ class Player(GameObjects):
 
 player = Player()
 
-# create enemies for the game start and add them to 
-turret_1 = Enemy.Turret(SCREEN_WIDTH-200, SCREEN_HEIGHT-100)
-turret_2 = Enemy.Turret(SCREEN_WIDTH-150, SCREEN_HEIGHT-150)
-saw_bot_1 = Enemy.SawBot(SCREEN_WIDTH-460, SCREEN_HEIGHT-100)
-saw_bot_2 = Enemy.SawBot(SCREEN_WIDTH-440, SCREEN_HEIGHT-100)
-crocodile = Enemy.Crocodile(SCREEN_WIDTH-500, SCREEN_HEIGHT-100)
+# create enemies for the game start and add them to
+turret_1 = Enemy.Turret(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100)
+turret_2 = Enemy.Turret(SCREEN_WIDTH - 150, SCREEN_HEIGHT - 150)
+saw_bot_1 = Enemy.SawBot(SCREEN_WIDTH - 460, SCREEN_HEIGHT - 100)
+saw_bot_2 = Enemy.SawBot(SCREEN_WIDTH - 440, SCREEN_HEIGHT - 100)
+crocodile = Enemy.Crocodile(SCREEN_WIDTH - 500, SCREEN_HEIGHT - 100)
 
 enemies.add(turret_1, saw_bot_1, turret_2, saw_bot_2, crocodile)
 
 all_sprites.add(screen_img)
 
+# variable to keep main loop running
+running = True
 
 # MAIN LOOP
 while running:
